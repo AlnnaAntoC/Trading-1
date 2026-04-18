@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CTS Logistics</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --orange: #FF6B1A;
+    --orange-light: #FF8C4A;
+    --orange-dark: #CC4A00;
+    --black: #0A0A0A;
+    --dark: #111111;
+    --dark2: #1A1A1A;
+    --dark3: #222222;
+    --gray: #888888;
+    --light-gray: #CCCCCC;
+    --white: #F5F5F0;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-cond: 'Barlow Condensed', sans-serif;
+    --font-body: 'Barlow', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--black); color: var(--white); font-family: var(--font-body); overflow-x: hidden; }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--black); }
+  ::-webkit-scrollbar-thumb { background: var(--orange); border-radius: 3px; }
+
+  /* ── PAGE SYSTEM ── */
+  .page { display: none; min-height: 100vh; }
+  .page.active { display: block; animation: fadeIn .4s ease; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    background: rgba(10,10,10,0.96); backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(255,107,26,0.2);
+    padding: 0 5%; display: flex; align-items: center; justify-content: space-between; height: 72px;
+  }
+  .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; cursor: pointer; }
+  .logo-mark {
+    width: 44px; height: 44px; background: var(--orange);
+    clip-path: polygon(0 20%,100% 0,100% 80%,0 100%);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .logo-text { font-family: var(--font-display); font-size: 2rem; letter-spacing: 4px; color: var(--white); line-height: 1; }
+  .logo-sub { font-family: var(--font-cond); font-size: .65rem; letter-spacing: 3px; color: var(--orange); text-transform: uppercase; line-height: 1; margin-top: 2px; }
+  .nav-links { display: flex; align-items: center; gap: 8px; list-style: none; }
+  .nav-links a, .nav-links button {
+    font-family: var(--font-cond); font-size: .85rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--light-gray); background: none; border: none; padding: 8px 16px; cursor: pointer; text-decoration: none; transition: color .2s; position: relative;
+  }
+  .nav-links a::after, .nav-links button::after {
+    content:''; position:absolute; bottom:4px; left:16px; right:16px; height:1px; background:var(--orange); transform:scaleX(0); transition:transform .2s;
+  }
+  .nav-links a:hover, .nav-links button:hover, .nav-links a.active, .nav-links button.active { color:var(--orange); }
+  .nav-links a:hover::after, .nav-links button:hover::after, .nav-links a.active::after, .nav-links button.active::after { transform:scaleX(1); }
+  .dropdown-wrapper { position: relative; }
+  .dropdown-toggle { display:flex; align-items:center; gap:6px; }
+  .dropdown-toggle svg { transition:transform .25s; }
+  .dropdown-wrapper:hover .dropdown-toggle svg { transform:rotate(180deg); }
+  .dropdown-menu {
+    position:absolute; top:calc(100% + 8px); left:50%;
+    transform:translateX(-50%) translateY(-6px);
+    background:var(--dark2); border:1px solid rgba(255,107,26,0.25); border-top:2px solid var(--orange);
+    min-width:260px; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s;
+  }
+  .dropdown-wrapper:hover .dropdown-menu { opacity:1; pointer-events:all; transform:translateX(-50%) translateY(0); }
+  .dropdown-menu a { display:flex; align-items:center; gap:12px; padding:12px 20px; font-family:var(--font-body); font-size:.82rem; font-weight:500; letter-spacing:1px; text-transform:uppercase; color:var(--light-gray); border-bottom:1px solid rgba(255,255,255,0.05); transition:background .2s, color .2s; text-decoration:none; }
+  .dropdown-menu a:last-child { border-bottom:none; }
+  .dropdown-menu a::after { display:none; }
+  .dropdown-menu a:hover { background:rgba(255,107,26,0.1); color:var(--orange); }
+  .dropdown-menu a .svc-dot { width:6px; height:6px; background:var(--orange); border-radius:50%; flex-shrink:0; }
+  .nav-cta { background:var(--orange)!important; color:var(--black)!important; font-weight:700!important; padding:9px 22px!important; clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%); }
+  .nav-cta::after { display:none!important; }
+  .nav-cta:hover { background:var(--orange-light)!important; }
+  .hamburger { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:4px; }
+  .hamburger span { width:26px; height:2px; background:var(--white); transition:all .3s; }
+  .mobile-menu { display:none; position:fixed; inset:72px 0 0 0; background:var(--black); z-index:999; padding:40px 5%; overflow-y:auto; }
+  .mobile-menu.open { display:block; }
+  .mobile-menu a, .mobile-menu button { display:block; width:100%; font-family:var(--font-cond); font-size:1.4rem; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:var(--white); background:none; border:none; padding:16px 0; text-align:left; cursor:pointer; text-decoration:none; border-bottom:1px solid rgba(255,255,255,0.08); }
+  .mobile-menu a:hover, .mobile-menu button:hover { color:var(--orange); }
+  .mobile-sub { padding-left:20px!important; font-size:1rem!important; color:var(--gray)!important; }
+
+  /* ── HELPERS ── */
+  .section { padding: 120px 5%; }
+  .label { font-family:var(--font-cond); font-size:.75rem; font-weight:600; letter-spacing:4px; text-transform:uppercase; color:var(--orange); display:inline-flex; align-items:center; gap:8px; margin-bottom:16px; }
+  .label::before { content:''; width:28px; height:2px; background:var(--orange); }
+  h1 { font-family:var(--font-display); font-size:clamp(3.5rem,9vw,8rem); line-height:.95; letter-spacing:2px; }
+  h2 { font-family:var(--font-display); font-size:clamp(2.5rem,6vw,5rem); line-height:1; letter-spacing:1px; }
+  h3 { font-family:var(--font-cond); font-size:1.5rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; }
+  .orange { color:var(--orange); }
+  .block { display:block; }
+  p { line-height:1.8; color:var(--gray); }
+  .btn { display:inline-flex; align-items:center; gap:10px; font-family:var(--font-cond); font-size:.85rem; font-weight:700; letter-spacing:3px; text-transform:uppercase; padding:14px 32px; cursor:pointer; text-decoration:none; transition:all .25s; border:none; }
+  .btn-primary { background:var(--orange); color:var(--black); clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%); }
+  .btn-primary:hover { background:var(--orange-light); transform:translateY(-2px); }
+  .btn-outline { background:transparent; color:var(--white); border:1px solid rgba(255,255,255,0.25); }
+  .btn-outline:hover { border-color:var(--orange); color:var(--orange); }
+  .divider { height:1px; background:linear-gradient(90deg,transparent,rgba(255,107,26,0.4),transparent); }
+
+  /* ── IMAGE UTILS ── */
+  .img-cover { width:100%; height:100%; object-fit:cover; display:block; }
+  .img-overlay { position:absolute; inset:0; background:linear-gradient(to top,rgba(10,10,10,.85) 0%,rgba(10,10,10,.3) 50%,rgba(10,10,10,.1) 100%); }
+  .img-overlay-strong { position:absolute; inset:0; background:rgba(10,10,10,.65); }
+  .img-overlay-side { position:absolute; inset:0; background:linear-gradient(to right,rgba(10,10,10,1) 0%,rgba(10,10,10,.7) 40%,rgba(10,10,10,.1) 100%); }
+
+  /* ══ HOME ══ */
+  .hero { min-height:100vh; display:flex; flex-direction:column; justify-content:flex-end; padding:120px 5% 80px; position:relative; overflow:hidden; }
+  .hero-img { position:absolute; inset:0; }
+  .hero-img img { width:100%; height:100%; object-fit:cover; }
+  .hero-img::after { content:''; position:absolute; inset:0; background:linear-gradient(to right,rgba(10,10,10,.95) 35%,rgba(10,10,10,.5) 70%,rgba(10,10,10,.2) 100%); }
+  .hero-eyebrow { font-family:var(--font-cond); font-size:.8rem; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:var(--orange); margin-bottom:24px; display:flex; align-items:center; gap:12px; position:relative; }
+  .hero-eyebrow::before { content:''; width:50px; height:2px; background:var(--orange); }
+  .hero h1 { max-width:900px; margin-bottom:32px; position:relative; }
+  .hero-desc { max-width:500px; font-size:1.05rem; color:rgba(245,245,240,0.65); line-height:1.8; margin-bottom:48px; position:relative; }
+  .hero-btns { display:flex; gap:16px; flex-wrap:wrap; margin-bottom:80px; position:relative; }
+  .hero-stats { display:flex; gap:0; border-top:1px solid rgba(255,255,255,0.1); padding-top:48px; flex-wrap:wrap; position:relative; }
+  .stat { padding:0 48px 0 0; border-right:1px solid rgba(255,255,255,0.1); margin-right:48px; }
+  .stat:last-child { border-right:none; }
+  .stat-num { font-family:var(--font-display); font-size:3rem; color:var(--orange); line-height:1; }
+  .stat-label { font-family:var(--font-cond); font-size:.75rem; letter-spacing:3px; text-transform:uppercase; color:var(--gray); margin-top:4px; }
+
+  /* Marquee */
+  .services-strip { background:var(--orange); padding:20px 5%; display:flex; overflow:hidden; }
+  .strip-inner { display:flex; gap:60px; animation:marquee 22s linear infinite; white-space:nowrap; }
+  @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+  .strip-item { font-family:var(--font-cond); font-size:.85rem; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:var(--black); display:flex; align-items:center; gap:16px; flex-shrink:0; }
+  .strip-item::before { content:'◆'; font-size:.6rem; }
+
+  /* About snippet */
+  .about-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center; }
+  .about-visual { position:relative; aspect-ratio:4/5; overflow:hidden; }
+  .av-label { position:absolute; bottom:32px; left:32px; right:32px; background:rgba(10,10,10,0.9); border-left:3px solid var(--orange); padding:20px 24px; }
+  .av-label p { color:var(--white); font-size:.9rem; }
+  .av-label strong { color:var(--orange); font-family:var(--font-cond); letter-spacing:1px; }
+  .about-content h2 { margin-bottom:24px; }
+  .about-content p { margin-bottom:20px; font-size:.95rem; }
+  .about-features { display:flex; flex-direction:column; gap:12px; margin:32px 0; }
+  .feat-item { display:flex; align-items:center; gap:12px; font-family:var(--font-cond); font-size:.9rem; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:var(--white); }
+  .feat-item::before { content:''; width:20px; height:2px; background:var(--orange); flex-shrink:0; }
+
+  /* Services grid */
+  .services-intro { text-align:center; max-width:600px; margin:0 auto 64px; }
+  .services-intro h2 { margin-bottom:16px; }
+  .services-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; background:rgba(255,255,255,0.04); }
+  .svc-card { background:var(--dark); cursor:pointer; transition:background .25s; position:relative; overflow:hidden; }
+  .svc-card-img { height:200px; overflow:hidden; position:relative; }
+  .svc-card-img img { width:100%; height:100%; object-fit:cover; transition:transform .5s; }
+  .svc-card:hover .svc-card-img img { transform:scale(1.06); }
+  .svc-card-img::after { content:''; position:absolute; inset:0; background:linear-gradient(to top,rgba(17,17,17,.9) 0%,rgba(17,17,17,.2) 100%); }
+  .svc-card-body { padding:32px 36px 40px; }
+  .svc-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--orange); transform:scaleY(0); transition:transform .3s; transform-origin:bottom; }
+  .svc-card:hover::before { transform:scaleY(1); }
+  .svc-num { font-family:var(--font-display); font-size:4rem; color:rgba(255,107,26,0.14); line-height:1; margin-bottom:10px; transition:color .25s; }
+  .svc-card:hover .svc-num { color:rgba(255,107,26,0.28); }
+  .svc-card h3 { font-size:1.1rem; margin-bottom:10px; color:var(--white); }
+  .svc-card p { font-size:.88rem; line-height:1.7; color:var(--gray); }
+  .svc-arrow { margin-top:20px; font-family:var(--font-cond); font-size:.78rem; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--orange); opacity:0; transition:opacity .25s; display:flex; align-items:center; gap:8px; }
+  .svc-card:hover .svc-arrow { opacity:1; }
+
+  /* Image ribbon */
+  .img-ribbon { display:grid; grid-template-columns:repeat(4,1fr); height:280px; }
+  .ribbon-cell { overflow:hidden; position:relative; }
+  .ribbon-cell img { width:100%; height:100%; object-fit:cover; transition:transform .6s; filter:brightness(.7) saturate(.8); }
+  .ribbon-cell:hover img { transform:scale(1.08); filter:brightness(.9) saturate(1); }
+  .ribbon-cell-label { position:absolute; bottom:16px; left:16px; font-family:var(--font-cond); font-size:.75rem; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:var(--orange); }
+
+  /* CTA Banner */
+  .cta-banner { background:var(--orange); padding:80px 5%; display:flex; align-items:center; justify-content:space-between; gap:40px; flex-wrap:wrap; position:relative; overflow:hidden; }
+  .cta-banner-bg { position:absolute; inset:0; }
+  .cta-banner-bg img { width:100%; height:100%; object-fit:cover; opacity:.12; }
+  .cta-banner::after { content:'CTS'; position:absolute; right:-2%; top:50%; transform:translateY(-50%); font-family:var(--font-display); font-size:18vw; color:rgba(0,0,0,0.09); line-height:1; pointer-events:none; white-space:nowrap; }
+  .cta-banner h2 { color:var(--black); margin-bottom:8px; position:relative; }
+  .cta-banner p { color:rgba(0,0,0,0.6); font-size:1rem; position:relative; }
+  .cta-content { position:relative; }
+  .btn-dark { background:var(--black); color:var(--white); clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%); position:relative; flex-shrink:0; }
+  .btn-dark:hover { background:var(--dark2); transform:translateY(-2px); }
+
+  /* ══ PAGE HERO ══ */
+  .page-hero { min-height:52vh; display:flex; flex-direction:column; justify-content:flex-end; padding:120px 5% 64px; position:relative; overflow:hidden; border-bottom:1px solid rgba(255,107,26,0.15); }
+  .page-hero-img { position:absolute; inset:0; }
+  .page-hero-img img { width:100%; height:100%; object-fit:cover; }
+  .page-hero-img::after { content:''; position:absolute; inset:0; background:linear-gradient(to right,rgba(10,10,10,.95) 40%,rgba(10,10,10,.5) 100%); }
+  .page-hero-num { position:absolute; right:5%; bottom:0; font-family:var(--font-display); font-size:20vw; color:rgba(255,107,26,0.05); line-height:1; pointer-events:none; }
+  .page-hero .label, .page-hero h1, .page-hero p { position:relative; }
+
+  /* ══ ABOUT ══ */
+  .mission-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:start; }
+  .mission-img { width:100%; height:340px; overflow:hidden; position:relative; margin-top:32px; }
+  .mission-img img { width:100%; height:100%; object-fit:cover; }
+  .mission-img::after { content:''; position:absolute; inset:0; background:linear-gradient(to top,rgba(10,10,10,.5),transparent 60%); }
+  .values-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:2px; background:rgba(255,255,255,0.04); }
+  .value-card { background:var(--dark); padding:40px 32px; }
+  .value-icon { font-size:2.5rem; margin-bottom:16px; }
+  .value-card h3 { font-size:1rem; margin-bottom:10px; color:var(--orange); }
+  .value-card p { font-size:.88rem; }
+  .team-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:24px; }
+  .team-card { background:var(--dark2); overflow:hidden; }
+  .team-photo { height:260px; overflow:hidden; position:relative; }
+  .team-photo img { width:100%; height:100%; object-fit:cover; filter:grayscale(20%); transition:filter .3s; }
+  .team-card:hover .team-photo img { filter:grayscale(0%); }
+  .team-photo-overlay { position:absolute; inset:0; background:linear-gradient(to top,rgba(26,26,26,.9) 0%,transparent 50%); }
+  .team-info { padding:20px; }
+  .team-name { font-family:var(--font-cond); font-size:1.1rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--white); }
+  .team-role { font-size:.8rem; color:var(--orange); margin-top:4px; font-family:var(--font-cond); letter-spacing:2px; text-transform:uppercase; }
+  .timeline { position:relative; padding-left:40px; }
+  .timeline::before { content:''; position:absolute; left:0; top:0; bottom:0; width:2px; background:rgba(255,107,26,0.25); }
+  .tl-item { position:relative; padding-bottom:48px; }
+  .tl-item::before { content:''; position:absolute; left:-45px; top:4px; width:12px; height:12px; border-radius:50%; background:var(--orange); box-shadow:0 0 0 4px rgba(255,107,26,0.2); }
+  .tl-year { font-family:var(--font-display); font-size:2.5rem; color:var(--orange); line-height:1; }
+  .tl-title { font-family:var(--font-cond); font-size:1.1rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--white); margin:8px 0; }
+  .tl-desc { font-size:.9rem; color:var(--gray); }
+
+  /* ══ SERVICES PAGE ══ */
+  .all-services-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:2px; background:rgba(255,255,255,0.04); }
+  .svc-card-lg { background:var(--dark); cursor:pointer; transition:background .25s; position:relative; overflow:hidden; display:flex; flex-direction:column; }
+  .svc-card-lg-img { height:260px; overflow:hidden; position:relative; }
+  .svc-card-lg-img img { width:100%; height:100%; object-fit:cover; transition:transform .5s; }
+  .svc-card-lg:hover .svc-card-lg-img img { transform:scale(1.05); }
+  .svc-card-lg-img::after { content:''; position:absolute; inset:0; background:linear-gradient(to top,rgba(17,17,17,1) 0%,rgba(17,17,17,.1) 100%); }
+  .svc-card-lg-body { padding:48px 50px 60px; flex-grow:1; display:flex; flex-direction:column; }
+  .svc-card-lg::after { content:''; position:absolute; bottom:0; left:0; right:0; height:2px; background:var(--orange); transform:scaleX(0); transition:transform .3s; }
+  .svc-card-lg:hover::after { transform:scaleX(1); }
+  .svc-card-lg .svc-num { font-size:5rem; }
+  .svc-card-lg h3 { font-size:1.4rem; margin:12px 0 16px; }
+  .svc-card-lg p { font-size:.9rem; flex-grow:1; }
+  .svc-card-lg .svc-arrow { opacity:1; margin-top:28px; }
+
+  /* ══ SERVICE DETAIL ══ */
+  .service-hero { min-height:55vh; display:flex; flex-direction:column; justify-content:flex-end; padding:120px 5% 64px; position:relative; overflow:hidden; }
+  .service-hero-img { position:absolute; inset:0; }
+  .service-hero-img img { width:100%; height:100%; object-fit:cover; }
+  .service-hero-img::after { content:''; position:absolute; inset:0; background:linear-gradient(to right,rgba(10,10,10,.95) 35%,rgba(10,10,10,.6) 65%,rgba(10,10,10,.3) 100%); }
+  .service-hero .label, .service-hero h1, .service-hero p { position:relative; }
+  .service-hero h1 { font-size:clamp(2.5rem,6vw,5.5rem); margin-bottom:20px; }
+  .service-hero p { max-width:600px; font-size:1.05rem; color:rgba(245,245,240,.7); }
+  .service-body { display:grid; grid-template-columns:2fr 1fr; gap:80px; }
+  .service-body h3 { margin-bottom:16px; }
+  .service-body p { margin-bottom:20px; }
+  .service-mid-img { width:100%; height:300px; overflow:hidden; position:relative; margin:40px 0; }
+  .service-mid-img img { width:100%; height:100%; object-fit:cover; }
+  .service-mid-img::after { content:''; position:absolute; inset:0; background:linear-gradient(to right,rgba(10,10,10,.4),transparent); }
+  .feature-list { list-style:none; display:flex; flex-direction:column; gap:12px; margin:32px 0; }
+  .feature-list li { display:flex; align-items:flex-start; gap:12px; font-size:.92rem; color:var(--light-gray); }
+  .feature-list li::before { content:'→'; color:var(--orange); flex-shrink:0; }
+  .svc-sidebar { display:flex; flex-direction:column; gap:24px; }
+  .sidebar-card { background:var(--dark2); border-top:2px solid var(--orange); padding:32px 28px; }
+  .sidebar-card h3 { font-size:1rem; margin-bottom:16px; color:var(--orange); }
+  .sidebar-card p, .sidebar-card li { font-size:.88rem; }
+  .sidebar-card ul { list-style:none; display:flex; flex-direction:column; gap:10px; }
+  .sidebar-card li { padding-left:14px; border-left:2px solid rgba(255,107,26,0.3); color:var(--gray); }
+  .sidebar-img { height:200px; overflow:hidden; position:relative; }
+  .sidebar-img img { width:100%; height:100%; object-fit:cover; }
+  .sidebar-img::after { content:''; position:absolute; inset:0; background:rgba(10,10,10,.3); }
+  .other-services { margin-top:80px; }
+  .other-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; background:rgba(255,255,255,0.04); }
+  .other-card { background:var(--dark); cursor:pointer; transition:background .2s; overflow:hidden; }
+  .other-card-img { height:160px; overflow:hidden; position:relative; }
+  .other-card-img img { width:100%; height:100%; object-fit:cover; transition:transform .4s; }
+  .other-card:hover .other-card-img img { transform:scale(1.07); }
+  .other-card-img::after { content:''; position:absolute; inset:0; background:linear-gradient(to top,rgba(17,17,17,.8),transparent 60%); }
+  .other-card-body { padding:24px; }
+  .other-card:hover { background:var(--dark2); }
+  .other-card h3 { font-size:.95rem; color:var(--white); margin-bottom:8px; }
+  .other-card p { font-size:.82rem; }
+
+  /* ══ CONTACT ══ */
+  .contact-grid { display:grid; grid-template-columns:1fr 1.5fr; gap:80px; align-items:start; }
+  .contact-info-card { background:var(--dark2); border-top:3px solid var(--orange); padding:48px 40px; display:flex; flex-direction:column; gap:32px; }
+  .contact-label { font-family:var(--font-cond); font-size:.75rem; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:var(--orange); }
+  .contact-value { font-size:.95rem; color:var(--white); line-height:1.6; }
+  .socials { display:flex; gap:12px; margin-top:8px; }
+  .social-btn { width:40px; height:40px; border:1px solid rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; font-size:1rem; cursor:pointer; transition:border-color .2s, background .2s; text-decoration:none; color:var(--white); }
+  .social-btn:hover { border-color:var(--orange); background:rgba(255,107,26,0.1); }
+  .contact-form { display:flex; flex-direction:column; gap:20px; }
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .field { display:flex; flex-direction:column; gap:8px; }
+  .field label { font-family:var(--font-cond); font-size:.75rem; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:var(--gray); }
+  .field input, .field textarea, .field select { background:var(--dark2); border:1px solid rgba(255,255,255,0.1); color:var(--white); padding:14px 18px; font-family:var(--font-body); font-size:.9rem; transition:border-color .2s; outline:none; resize:vertical; -webkit-appearance:none; }
+  .field input:focus, .field textarea:focus, .field select:focus { border-color:var(--orange); }
+  .field select option { background:var(--dark2); }
+  .submit-row { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; }
+  .form-note { font-size:.8rem; color:var(--gray); }
+  .form-success { background:rgba(255,107,26,0.1); border:1px solid var(--orange); padding:20px 24px; display:none; font-family:var(--font-cond); font-size:1rem; letter-spacing:1px; color:var(--orange); align-items:center; gap:12px; }
+  .form-success.show { display:flex; }
+  .map-img { width:100%; height:340px; overflow:hidden; position:relative; margin-top:80px; }
+  .map-img img { width:100%; height:100%; object-fit:cover; filter:grayscale(60%) brightness(.7); }
+  .map-img::after { content:''; position:absolute; inset:0; background:rgba(10,10,10,.3); }
+  .map-pin-label { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; }
+  .map-pin-label .pin { font-size:3rem; }
+  .map-pin-label p { font-family:var(--font-cond); font-size:.8rem; letter-spacing:3px; text-transform:uppercase; color:var(--white); margin-top:8px; }
+
+  /* ── FOOTER ── */
+  footer { background:var(--dark); border-top:1px solid rgba(255,107,26,0.15); padding:80px 5% 40px; }
+  .footer-grid { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:60px; margin-bottom:60px; }
+  .footer-brand p { font-size:.88rem; margin-top:16px; max-width:280px; }
+  .footer-col h4 { font-family:var(--font-cond); font-size:.75rem; font-weight:700; letter-spacing:4px; text-transform:uppercase; color:var(--orange); margin-bottom:20px; }
+  .footer-col ul { list-style:none; display:flex; flex-direction:column; gap:10px; }
+  .footer-col ul li a, .footer-col ul li button { font-size:.88rem; color:var(--gray); text-decoration:none; background:none; border:none; cursor:pointer; padding:0; font-family:var(--font-body); transition:color .2s; }
+  .footer-col ul li a:hover, .footer-col ul li button:hover { color:var(--orange); }
+  .footer-bottom { border-top:1px solid rgba(255,255,255,0.06); padding-top:32px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; }
+  .footer-bottom p { font-size:.8rem; color:rgba(136,136,136,0.6); }
+  .footer-bottom span { color:var(--orange); }
+
+  /* ── RESPONSIVE ── */
+  @media(max-width:1024px){
+    .about-grid,.mission-grid,.service-body,.contact-grid{grid-template-columns:1fr;gap:48px;}
+    .team-grid,.values-grid{grid-template-columns:repeat(2,1fr);}
+    .services-grid,.all-services-grid{grid-template-columns:repeat(2,1fr);}
+    .footer-grid{grid-template-columns:1fr 1fr;}
+    .other-grid{grid-template-columns:repeat(2,1fr);}
+    .img-ribbon{grid-template-columns:repeat(2,1fr); height:auto;}
+    .ribbon-cell{height:200px;}
+  }
+  @media(max-width:768px){
+    nav .nav-links{display:none;}
+    .hamburger{display:flex;}
+    .services-grid,.all-services-grid,.other-grid{grid-template-columns:1fr;}
+    .values-grid,.team-grid{grid-template-columns:1fr;}
+    .footer-grid{grid-template-columns:1fr;}
+    .form-row{grid-template-columns:1fr;}
+    .hero-stats{flex-direction:column;gap:24px;}
+    .stat{border-right:none;padding:0;margin:0;}
+    .cta-banner{flex-direction:column;}
+    .img-ribbon{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo" onclick="navigate('home')">
+    <div class="logo-mark"></div>
+    <div><div class="logo-text">CTS</div><div class="logo-sub">Cargo & Transport Solutions</div></div>
+  </div>
+  <ul class="nav-links" id="desktop-nav">
+    <li><a href="#" onclick="navigate('home');return false;" data-page="home">Home</a></li>
+    <li><a href="#" onclick="navigate('about');return false;" data-page="about">About</a></li>
+    <li class="dropdown-wrapper">
+      <button class="dropdown-toggle" data-page="services" onclick="navigate('services');return false;">
+        Services
+        <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+      <div class="dropdown-menu">
+        <a href="#" onclick="navigate('service-freight');return false;"><span class="svc-dot"></span>Freight Transportation</a>
+        <a href="#" onclick="navigate('service-warehouse');return false;"><span class="svc-dot"></span>Warehousing & Storage</a>
+        <a href="#" onclick="navigate('service-supply');return false;"><span class="svc-dot"></span>Supply Chain Management</a>
+        <a href="#" onclick="navigate('service-lastmile');return false;"><span class="svc-dot"></span>Last Mile Delivery</a>
+        <a href="#" onclick="navigate('service-customs');return false;"><span class="svc-dot"></span>Customs & Compliance</a>
+        <a href="#" onclick="navigate('service-coldchain');return false;"><span class="svc-dot"></span>Cold Chain Logistics</a>
+      </div>
+    </li>
+    <li><a href="#" onclick="navigate('contact');return false;" data-page="contact">Contact</a></li>
+    <li><button class="nav-cta btn" onclick="navigate('contact');return false;">Get a Quote</button></li>
+  </ul>
+  <button class="hamburger" onclick="toggleMobile()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobile-menu">
+  <a href="#" onclick="navigate('home');toggleMobile();return false;">Home</a>
+  <a href="#" onclick="navigate('about');toggleMobile();return false;">About</a>
+  <a href="#" onclick="navigate('services');toggleMobile();return false;">Services</a>
+  <a href="#" class="mobile-sub" onclick="navigate('service-freight');toggleMobile();return false;">→ Freight Transportation</a>
+  <a href="#" class="mobile-sub" onclick="navigate('service-warehouse');toggleMobile();return false;">→ Warehousing & Storage</a>
+  <a href="#" class="mobile-sub" onclick="navigate('service-supply');toggleMobile();return false;">→ Supply Chain Management</a>
+  <a href="#" class="mobile-sub" onclick="navigate('service-lastmile');toggleMobile();return false;">→ Last Mile Delivery</a>
+  <a href="#" class="mobile-sub" onclick="navigate('service-customs');toggleMobile();return false;">→ Customs & Compliance</a>
+  <a href="#" class="mobile-sub" onclick="navigate('service-coldchain');toggleMobile();return false;">→ Cold Chain Logistics</a>
+  <a href="#" onclick="navigate('contact');toggleMobile();return false;">Contact</a>
+</div>
+
+<!-- ════════════════ HOME ════════════════ -->
+<div id="page-home" class="page">
+
+  <!-- HERO with full-bleed bg image -->
+  <section class="hero">
+    <div class="hero-img">
+      <img src="https://images.unsplash.com/photo-1494412651409-8963ce7935a7?w=1800&auto=format&q=80" alt="Cargo ship at sea" loading="eager"/>
+    </div>
+    <div class="hero-eyebrow">Global Logistics Excellence Since 2003</div>
+    <h1>MOVING THE <span class="orange">WORLD</span><span class="block">FORWARD</span></h1>
+    <p class="hero-desc">CTS delivers precision logistics solutions across freight, warehousing, and supply chain management — connecting your business to global markets with speed and reliability.</p>
+    <div class="hero-btns">
+      <button class="btn btn-primary" onclick="navigate('services')">Explore Services →</button>
+      <button class="btn btn-outline" onclick="navigate('contact')">Request Quote</button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">20+</div><div class="stat-label">Years Experience</div></div>
+      <div class="stat"><div class="stat-num">150+</div><div class="stat-label">Countries Served</div></div>
+      <div class="stat"><div class="stat-num">50K+</div><div class="stat-label">Shipments Yearly</div></div>
+      <div class="stat"><div class="stat-num">99.4%</div><div class="stat-label">On-Time Delivery</div></div>
+    </div>
+  </section>
+
+  <!-- Marquee strip -->
+  <div class="services-strip">
+    <div class="strip-inner">
+      <span class="strip-item">Freight Transportation</span><span class="strip-item">Warehousing & Storage</span><span class="strip-item">Supply Chain Management</span><span class="strip-item">Last Mile Delivery</span><span class="strip-item">Customs & Compliance</span><span class="strip-item">Cold Chain Logistics</span>
+      <span class="strip-item">Freight Transportation</span><span class="strip-item">Warehousing & Storage</span><span class="strip-item">Supply Chain Management</span><span class="strip-item">Last Mile Delivery</span><span class="strip-item">Customs & Compliance</span><span class="strip-item">Cold Chain Logistics</span>
+    </div>
+  </div>
+
+  <!-- About snippet -->
+  <section class="section">
+    <div class="about-grid">
+      <div class="about-visual">
+        <img class="img-cover" src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=900&auto=format&q=80" alt="Warehouse operations" loading="lazy"/>
+        <div class="av-label">
+          <strong>ISO 9001:2015 Certified</strong>
+          <p>Internationally recognized quality management across all operations.</p>
+        </div>
+      </div>
+      <div class="about-content">
+        <div class="label">Who We Are</div>
+        <h2>BUILT ON <span class="orange">TRUST,</span> DRIVEN BY PRECISION</h2>
+        <p>CTS  is a full-service logistics provider with over two decades of experience delivering seamless supply chain solutions to clients across six continents.</p>
+        <p>We combine industry expertise with cutting-edge technology to optimize every link in your logistics chain — from first-mile pickup to final-mile delivery.</p>
+        <div class="about-features">
+          <div class="feat-item">Real-Time Shipment Tracking</div>
+          <div class="feat-item">Dedicated Account Managers</div>
+          <div class="feat-item">24/7 Operations Center</div>
+          <div class="feat-item">Customs Brokerage Services</div>
+          <div class="feat-item">Flexible Scalable Solutions</div>
+        </div>
+        <button class="btn btn-primary" onclick="navigate('about')">Our Story →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Image Ribbon -->
+  <div class="img-ribbon">
+    <div class="ribbon-cell">
+      <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&auto=format&q=80" alt="Shipping port containers" loading="lazy"/>
+      <div class="ribbon-cell-label">Sea Freight</div>
+    </div>
+    <div class="ribbon-cell">
+      <img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=600&auto=format&q=80" alt="Cargo aircraft" loading="lazy"/>
+      <div class="ribbon-cell-label">Air Freight</div>
+    </div>
+    <div class="ribbon-cell">
+      <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=600&auto=format&q=80" alt="Logistics trucks" loading="lazy"/>
+      <div class="ribbon-cell-label">Road Freight</div>
+    </div>
+    <div class="ribbon-cell">
+      <img src="https://images.unsplash.com/photo-1591792111137-5b8219d5fad6?w=600&auto=format&q=80" alt="Warehouse storage" loading="lazy"/>
+      <div class="ribbon-cell-label">Warehousing</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Services Grid -->
+  <section class="section">
+    <div class="services-intro">
+      <div class="label">What We Do</div>
+      <h2>OUR <span class="orange">SERVICES</span></h2>
+      <p>Comprehensive logistics solutions tailored to every industry and scale.</p>
+    </div>
+    <div class="services-grid">
+      <div class="svc-card" onclick="navigate('service-freight')">
+        <div class="svc-card-img">
+          <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=600&auto=format&q=75" alt="Freight trucks" loading="lazy"/>
+        </div>
+        <div class="svc-card-body">
+          <div class="svc-num">01</div>
+          <h3>Freight Transportation</h3>
+          <p>Air, sea, and road freight solutions with real-time tracking and guaranteed delivery windows.</p>
+          <div class="svc-arrow">Learn More →</div>
+        </div>
+      </div>
+      <div class="svc-card" onclick="navigate('service-warehouse')">
+        <div class="svc-card-img">
+          <img src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=600&auto=format&q=75" alt="Warehouse interior" loading="lazy"/>
+        </div>
+        <div class="svc-card-body">
+          <div class="svc-num">02</div>
+          <h3>Warehousing & Storage</h3>
+          <p>Strategically located warehouses with modern inventory management systems.</p>
+          <div class="svc-arrow">Learn More →</div>
+        </div>
+      </div>
+      <div class="svc-card" onclick="navigate('service-supply')">
+        <div class="svc-card-img">
+          <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&auto=format&q=75" alt="Supply chain management" loading="lazy"/>
+        </div>
+        <div class="svc-card-body">
+          <div class="svc-num">03</div>
+          <h3>Supply Chain Management</h3>
+          <p>End-to-end supply chain optimization to reduce costs and improve efficiency.</p>
+          <div class="svc-arrow">Learn More →</div>
+        </div>
+      </div>
+      <div class="svc-card" onclick="navigate('service-lastmile')">
+        <div class="svc-card-img">
+          <img src="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=600&auto=format&q=75" alt="Last mile delivery" loading="lazy"/>
+        </div>
+        <div class="svc-card-body">
+          <div class="svc-num">04</div>
+          <h3>Last Mile Delivery</h3>
+          <p>Fast, reliable final-leg delivery with flexible scheduling and proof-of-delivery technology.</p>
+          <div class="svc-arrow">Learn More →</div>
+        </div>
+      </div>
+      <div class="svc-card" onclick="navigate('service-customs')">
+        <div class="svc-card-img">
+          <img src="https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=600&auto=format&q=75" alt="Customs and compliance" loading="lazy"/>
+        </div>
+        <div class="svc-card-body">
+          <div class="svc-num">05</div>
+          <h3>Customs & Compliance</h3>
+          <p>Expert customs brokerage and trade compliance for smooth cross-border movement.</p>
+          <div class="svc-arrow">Learn More →</div>
+        </div>
+      </div>
+      <div class="svc-card" onclick="navigate('service-coldchain')">
+        <div class="svc-card-img">
+          <img src="https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=600&auto=format&q=75" alt="Cold chain logistics" loading="lazy"/>
+        </div>
+        <div class="svc-card-body">
+          <div class="svc-num">06</div>
+          <h3>Cold Chain Logistics</h3>
+          <p>Temperature-controlled logistics for pharmaceuticals, food, and sensitive cargo.</p>
+          <div class="svc-arrow">Learn More →</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Banner with bg image -->
+  <div class="cta-banner">
+    <div class="cta-banner-bg"><img src="https://images.unsplash.com/photo-1494412651409-8963ce7935a7?w=1400&auto=format&q=60" alt="" loading="lazy"/></div>
+    <div class="cta-content"><h2>READY TO SHIP <span style="color:rgba(0,0,0,0.5)">WITH</span> CTS?</h2><p>Get a customized quote within 24 hours. No commitment required.</p></div>
+    <button class="btn btn-dark" onclick="navigate('contact')">Request a Quote →</button>
+  </div>
+
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="nav-logo" style="cursor:default"><div class="logo-mark"></div><div><div class="logo-text">CTS</div><div class="logo-sub">Cargo & Transport Solutions</div></div></div>
+        <p>Your trusted logistics partner for global freight, warehousing, and supply chain solutions since 2003.</p>
+      </div>
+      <div class="footer-col"><h4>Services</h4><ul>
+        <li><button onclick="navigate('service-freight')">Freight Transportation</button></li>
+        <li><button onclick="navigate('service-warehouse')">Warehousing & Storage</button></li>
+        <li><button onclick="navigate('service-supply')">Supply Chain Mgmt</button></li>
+        <li><button onclick="navigate('service-lastmile')">Last Mile Delivery</button></li>
+        <li><button onclick="navigate('service-customs')">Customs & Compliance</button></li>
+        <li><button onclick="navigate('service-coldchain')">Cold Chain Logistics</button></li>
+      </ul></div>
+      <div class="footer-col"><h4>Company</h4><ul>
+        <li><button onclick="navigate('home')">Home</button></li>
+        <li><button onclick="navigate('about')">About Us</button></li>
+        <li><button onclick="navigate('contact')">Contact</button></li>
+      </ul></div>
+      <div class="footer-col"><h4>Contact</h4><ul>
+        <li><a href="#">+974 1234 5678</a></li>
+        <li><a href="#">info@cts-logistics.com</a></li>
+        <li><a href="#">Thrissur, Kerala</a></li>
+        <li><a href="#">Kochi, Kerala</a></li>
+      </ul></div>
+    </div>
+    <div class="footer-bottom"><p>© 2025 <span>CTS Logistics</span>. All rights reserved.Designed & Developed by Alnna Anto C </p><p>Designed with precision for <span>global reach</span>.</p></div>
+  </footer>
+</div>
+
+<!-- ════════════════ ABOUT ════════════════ -->
+<div id="page-about" class="page">
+  <div class="page-hero">
+    <div class="page-hero-img">
+      <img src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1600&auto=format&q=80" alt="City skyline" loading="lazy"/>
+    </div>
+    <div class="label">Our Story</div>
+    <h1>ABOUT <span class="orange">CTS</span></h1>
+    <div class="page-hero-num">CTS</div>
+  </div>
+
+  <section class="section">
+    <div class="mission-grid">
+      <div>
+        <div class="label">Our Mission</div>
+        <h2>CONNECTING BUSINESSES <span class="orange">TO THE WORLD</span></h2>
+        <p>Founded in 2003, CTS Cargo & Transport Solutions began as a regional freight carrier in the Middle East. Over two decades, we've grown into a global logistics powerhouse serving clients across 150+ countries.</p>
+        <p>Our mission is simple: deliver every shipment with the same care and precision we would give our own — on time, every time, with full transparency from pickup to delivery.</p>
+        <p>Today, CTS operates a fleet of 800+ vehicles, manages 2.5 million sq ft of warehouse space globally, and employs over 4,500 logistics professionals worldwide.</p>
+        <div class="mission-img">
+          <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=900&auto=format&q=80" alt="Port operations" loading="lazy"/>
+        </div>
+      </div>
+      <div>
+        <div class="label">Our Vision</div>
+        <h2>THE FUTURE OF <span class="orange">LOGISTICS</span></h2>
+        <p>We believe logistics is the backbone of global commerce. As trade evolves, so do we — investing in AI-driven route optimization, IoT tracking, and sustainable transport solutions to lead the industry forward.</p>
+        <p>CTS is committed to reducing our carbon footprint by 40% by 2030 through electric fleet expansion and green warehousing initiatives.</p>
+        <p>Our vision: a world where every business, regardless of size or location, has access to world-class logistics infrastructure.</p>
+        <div class="mission-img">
+          <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=900&auto=format&q=80" alt="Logistics fleet" loading="lazy"/>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section class="section">
+    <div class="label">Our Values</div>
+    <h2 style="margin-bottom:48px">WHAT DRIVES <span class="orange">US</span></h2>
+    <div class="values-grid">
+      <div class="value-card"><div class="value-icon">⚡</div><h3>Speed & Reliability</h3><p>We understand that time is money. Our 99.4% on-time delivery rate is a testament to our commitment to speed without compromise.</p></div>
+      <div class="value-card"><div class="value-icon">🔍</div><h3>Full Transparency</h3><p>Real-time tracking, proactive updates, and honest communication. No surprises — clear, reliable information at every step.</p></div>
+      <div class="value-card"><div class="value-icon">🌿</div><h3>Sustainability</h3><p>Responsible logistics that considers the planet. We're actively reducing emissions across our fleet and facilities.</p></div>
+      <div class="value-card"><div class="value-icon">🤝</div><h3>Partnership</h3><p>We're not just a vendor — we're a strategic partner invested in our clients' long-term growth and operational success.</p></div>
+    </div>
+  </section>
+
+  <!-- Full-width image break -->
+  <div style="height:420px;overflow:hidden;position:relative;">
+    <img style="width:100%;height:100%;object-fit:cover;filter:brightness(.55);" src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=1800&auto=format&q=80" alt="Warehouse" loading="lazy"/>
+    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;text-align:center;">
+      <div class="label" style="margin-bottom:0">Our Scale</div>
+      <h2>2.5 MILLION <span class="orange">SQ FT</span> OF WAREHOUSE SPACE</h2>
+      <p style="color:rgba(245,245,240,.7);max-width:500px">Strategically located facilities across the Middle East, Europe, and Asia.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <section class="section">
+    <div class="label">Leadership</div>
+    <h2 style="margin-bottom:48px">MEET THE <span class="orange">TEAM</span></h2>
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-photo">
+          <img src="" alt="Stephan C T" loading="lazy"/>
+          <div class="team-photo-overlay"></div>
+        </div>
+        <div class="team-info"><div class="team-name">Stephan C T</div><div class="team-role">CEO & Founder</div></div>
+      </div>
+      <div class="team-card">
+        <div class="team-photo">
+          <img src="" alt="" loading="lazy"/>
+          <div class="team-photo-overlay"></div>
+        </div>
+        <div class="team-info"><div class="team-name">Princy Stephan</div><div class="team-role">Chief Operations Officer</div></div>
+      </div>
+      <div class="team-card">
+        <div class="team-photo">
+          <img src="" alt="" loading="lazy"/>
+          <div class="team-photo-overlay"></div>
+        </div>
+        <div class="team-info"><div class="team-name">James</div><div class="team-role">Chief Technology Officer</div></div>
+      </div>
+      <div class="team-card">
+        <div class="team-photo">
+          <img src="" alt="P Supply Chain" loading="lazy"/>
+          <div class="team-photo-overlay"></div>
+        </div>
+        <div class="team-info"><div class="team-name">Priya </div><div class="team-role">Head of Supply Chain</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section class="section">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start">
+      <div>
+        <div class="label">Our Journey</div>
+        <h2 style="margin-bottom:48px">MILESTONES <span class="orange">TIMELINE</span></h2>
+        <div class="timeline">
+          <div class="tl-item"><div class="tl-year">2003</div><div class="tl-title">Founded in Doha</div><div class="tl-desc">CTS launched with a 12-truck fleet serving the GCC region, focusing on road freight and local distribution.</div></div>
+          <div class="tl-item"><div class="tl-year">2008</div><div class="tl-title">International Expansion</div><div class="tl-desc">Opened our first international hub in Dubai and launched air freight capabilities across 40 countries.</div></div>
+          <div class="tl-item"><div class="tl-year">2013</div><div class="tl-title">Warehousing Division</div><div class="tl-desc">Launched our warehousing and fulfillment division with 500K sq ft of initial capacity across 3 locations.</div></div>
+          <div class="tl-item"><div class="tl-year">2018</div><div class="tl-title">Tech Transformation</div><div class="tl-desc">Deployed AI-driven logistics platform, reducing route time by 23% and fuel costs significantly.</div></div>
+          <div class="tl-item"><div class="tl-year">2024</div><div class="tl-title">Green Fleet Initiative</div><div class="tl-desc">Launched our EV fleet program with 200 electric delivery vehicles, the largest in the MENA region.</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="label">By The Numbers</div>
+        <h2 style="margin-bottom:48px">CTS <span class="orange">AT A GLANCE</span></h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;background:rgba(255,255,255,0.04)">
+          <div style="background:var(--dark);padding:40px 32px"><div class="stat-num" style="font-size:3.5rem">800+</div><div class="stat-label">Fleet Vehicles</div></div>
+          <div style="background:var(--dark);padding:40px 32px"><div class="stat-num" style="font-size:3.5rem">4,500+</div><div class="stat-label">Employees Global</div></div>
+          <div style="background:var(--dark);padding:40px 32px"><div class="stat-num" style="font-size:3.5rem">2.5M</div><div class="stat-label">Sq Ft Warehouse</div></div>
+          <div style="background:var(--dark);padding:40px 32px"><div class="stat-num" style="font-size:3.5rem">150+</div><div class="stat-label">Countries Reached</div></div>
+          <div style="background:var(--dark);padding:40px 32px"><div class="stat-num" style="font-size:3.5rem">50K+</div><div class="stat-label">Annual Shipments</div></div>
+          <div style="background:var(--dark);padding:40px 32px"><div class="stat-num" style="font-size:3.5rem">99.4%</div><div class="stat-label">On-Time Rate</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="cta-banner">
+    <div class="cta-banner-bg"><img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1400&auto=format&q=60" alt="" loading="lazy"/></div>
+    <div class="cta-content"><h2>JOIN THE CTS <span style="color:rgba(0,0,0,0.5)">NETWORK</span></h2><p>Partner with us and unlock global logistics capabilities.</p></div>
+    <button class="btn btn-dark" onclick="navigate('contact')">Get In Touch →</button>
+  </div>
+
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand"><div class="nav-logo" style="cursor:default"><div class="logo-mark"></div><div><div class="logo-text">CTS</div><div class="logo-sub">Cargo & Transport Solutions</div></div></div><p>Your trusted logistics partner since 2003.</p></div>
+      <div class="footer-col"><h4>Services</h4><ul><li><button onclick="navigate('service-freight')">Freight Transportation</button></li><li><button onclick="navigate('service-warehouse')">Warehousing & Storage</button></li><li><button onclick="navigate('service-supply')">Supply Chain Mgmt</button></li><li><button onclick="navigate('service-lastmile')">Last Mile Delivery</button></li><li><button onclick="navigate('service-customs')">Customs & Compliance</button></li><li><button onclick="navigate('service-coldchain')">Cold Chain Logistics</button></li></ul></div>
+      <div class="footer-col"><h4>Company</h4><ul><li><button onclick="navigate('home')">Home</button></li><li><button onclick="navigate('about')">About Us</button></li><li><button onclick="navigate('contact')">Contact</button></li></ul></div>
+      <div class="footer-col"><h4>Contact</h4><ul><li><a href="#">+974 1234 5678</a></li><li><a href="#">info@cts-logistics.com</a></li><li><a href="#">Doha, Qatar</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><p>© 2025 <span>CTS Logistics</span>. All rights reserved.</p><p>Designed with precision for <span>global reach</span>.</p></div>
+  </footer>
+</div>
+
+<!-- ════════════════ SERVICES ════════════════ -->
+<div id="page-services" class="page">
+  <div class="page-hero">
+    <div class="page-hero-img">
+      <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1600&auto=format&q=80" alt="Container port" loading="lazy"/>
+    </div>
+    <div class="label">What We Offer</div>
+    <h1>OUR <span class="orange">SERVICES</span></h1>
+    <p style="max-width:550px;margin-top:16px;font-size:1rem;color:rgba(245,245,240,0.65)">Six comprehensive logistics solutions designed to move your business forward at every stage of the supply chain.</p>
+    <div class="page-hero-num">06</div>
+  </div>
+  <section class="section">
+    <div class="all-services-grid">
+      <div class="svc-card-lg" onclick="navigate('service-freight')">
+        <div class="svc-card-lg-img"><img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&auto=format&q=75" alt="Freight transportation" loading="lazy"/></div>
+        <div class="svc-card-lg-body"><div class="svc-num">01</div><h3>Freight Transportation</h3><p>Comprehensive air, sea, and road freight solutions with real-time tracking, flexible scheduling, and guaranteed delivery windows tailored to your timeline.</p><div class="svc-arrow">Explore Service →</div></div>
+      </div>
+      <div class="svc-card-lg" onclick="navigate('service-warehouse')">
+        <div class="svc-card-lg-img"><img src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=800&auto=format&q=75" alt="Warehousing" loading="lazy"/></div>
+        <div class="svc-card-lg-body"><div class="svc-num">02</div><h3>Warehousing & Storage</h3><p>Modern, strategically located warehouses with advanced inventory management, cross-docking, pick-and-pack, and fulfillment capabilities.</p><div class="svc-arrow">Explore Service →</div></div>
+      </div>
+      <div class="svc-card-lg" onclick="navigate('service-supply')">
+        <div class="svc-card-lg-img"><img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&auto=format&q=75" alt="Supply chain management" loading="lazy"/></div>
+        <div class="svc-card-lg-body"><div class="svc-num">03</div><h3>Supply Chain Management</h3><p>End-to-end supply chain design, optimization, and management to reduce costs, minimize risk, and improve operational efficiency across your network.</p><div class="svc-arrow">Explore Service →</div></div>
+      </div>
+      <div class="svc-card-lg" onclick="navigate('service-lastmile')">
+        <div class="svc-card-lg-img"><img src="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=800&auto=format&q=75" alt="Last mile delivery" loading="lazy"/></div>
+        <div class="svc-card-lg-body"><div class="svc-num">04</div><h3>Last Mile Delivery</h3><p>Reliable final-leg delivery solutions with flexible time-slot scheduling, real-time driver tracking, and electronic proof-of-delivery technology.</p><div class="svc-arrow">Explore Service →</div></div>
+      </div>
+      <div class="svc-card-lg" onclick="navigate('service-customs')">
+        <div class="svc-card-lg-img"><img src="https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=800&auto=format&q=75" alt="Customs and compliance" loading="lazy"/></div>
+        <div class="svc-card-lg-body"><div class="svc-num">05</div><h3>Customs & Compliance</h3><p>Expert customs brokerage, trade compliance advisory, and documentation management for seamless cross-border cargo movement.</p><div class="svc-arrow">Explore Service →</div></div>
+      </div>
+      <div class="svc-card-lg" onclick="navigate('service-coldchain')">
+        <div class="svc-card-lg-img"><img src="https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=800&auto=format&q=75" alt="Cold chain logistics" loading="lazy"/></div>
+        <div class="svc-card-lg-body"><div class="svc-num">06</div><h3>Cold Chain Logistics</h3><p>Temperature-controlled transportation and storage for pharmaceuticals, fresh produce, and other temperature-sensitive cargo with full cold chain integrity.</p><div class="svc-arrow">Explore Service →</div></div>
+      </div>
+    </div>
+  </section>
+  <div class="cta-banner">
+    <div class="cta-banner-bg"><img src="https://images.unsplash.com/photo-1494412651409-8963ce7935a7?w=1400&auto=format&q=60" alt="" loading="lazy"/></div>
+    <div class="cta-content"><h2>NOT SURE WHERE <span style="color:rgba(0,0,0,0.5)">TO START?</span></h2><p>Our logistics consultants will help identify the best solution for your needs.</p></div>
+    <button class="btn btn-dark" onclick="navigate('contact')">Talk to an Expert →</button>
+  </div>
+  <footer><div class="footer-grid"><div class="footer-brand"><div class="nav-logo" style="cursor:default"><div class="logo-mark"></div><div><div class="logo-text">CTS</div><div class="logo-sub">Cargo & Transport Solutions</div></div></div><p>Your trusted logistics partner since 2003.</p></div><div class="footer-col"><h4>Services</h4><ul><li><button onclick="navigate('service-freight')">Freight Transportation</button></li><li><button onclick="navigate('service-warehouse')">Warehousing & Storage</button></li><li><button onclick="navigate('service-supply')">Supply Chain Mgmt</button></li><li><button onclick="navigate('service-lastmile')">Last Mile Delivery</button></li><li><button onclick="navigate('service-customs')">Customs & Compliance</button></li><li><button onclick="navigate('service-coldchain')">Cold Chain Logistics</button></li></ul></div><div class="footer-col"><h4>Company</h4><ul><li><button onclick="navigate('home')">Home</button></li><li><button onclick="navigate('about')">About Us</button></li><li><button onclick="navigate('contact')">Contact</button></li></ul></div><div class="footer-col"><h4>Contact</h4><ul><li><a href="#">+974 1234 5678</a></li><li><a href="#">info@cts-logistics.com</a></li></ul></div></div><div class="footer-bottom"><p>© 2025 <span>CTS Logistics</span>. All rights reserved.</p></div></footer>
+</div>
+
+<!-- ════════════════ SERVICE 1: FREIGHT ════════════════ -->
+<div id="page-service-freight" class="page">
+  <div class="service-hero">
+    <div class="service-hero-img"><img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=1800&auto=format&q=80" alt="Freight trucks on highway" loading="lazy"/></div>
+    <div class="label">Service 01</div>
+    <h1>FREIGHT <span class="orange">TRANSPORTATION</span></h1>
+    <p>Air, sea, and road freight solutions engineered for speed, reliability, and full cargo visibility at every touchpoint.</p>
+  </div>
+  <section class="section">
+    <div class="service-body">
+      <div>
+        <div class="label">Overview</div>
+        <h3>GLOBAL FREIGHT SOLUTIONS FOR ANY CARGO</h3>
+        <p>CTS Freight Transportation combines the flexibility of multi-modal options with the precision of our proprietary tracking platform. Whether you're moving a single pallet or chartering an entire vessel, we have the infrastructure and expertise to deliver on time and on budget.</p>
+        <div class="service-mid-img"><img src="https://images.unsplash.com/photo-1494412651409-8963ce7935a7?w=1000&auto=format&q=80" alt="Cargo ships at sea" loading="lazy"/></div>
+        <p>Our global network spans 150+ countries through strategic partnerships with major airlines, shipping lines, and road carriers, giving you access to competitive rates and priority capacity even during peak seasons.</p>
+        <ul class="feature-list">
+          <li>Full Truckload (FTL) and Less-than-Truckload (LTL) road freight services</li>
+          <li>Air freight with express and economy options across 200+ airports</li>
+          <li>Sea freight including FCL, LCL, breakbulk, and project cargo</li>
+          <li>Real-time GPS tracking and milestone notifications</li>
+          <li>Specialized handling for oversized and hazardous cargo</li>
+          <li>Consolidation services for cost-efficient LCL shipments</li>
+          <li>Charter services for time-critical or large-volume cargo</li>
+        </ul>
+        <div class="service-mid-img"><img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1000&auto=format&q=80" alt="Cargo aircraft" loading="lazy"/></div>
+      </div>
+      <div class="svc-sidebar">
+        <div class="sidebar-img"><img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=500&auto=format&q=75" alt="Container port" loading="lazy"/></div>
+        <div class="sidebar-card"><h3>KEY BENEFITS</h3><ul><li>99.4% on-time delivery rate</li><li>Competitive spot and contract rates</li><li>Dedicated freight coordinators</li><li>24/7 shipment monitoring</li><li>Cargo insurance options</li></ul></div>
+        <div class="sidebar-card"><h3>FREIGHT MODES</h3><ul><li>Road — FTL & LTL</li><li>Air — Express & Economy</li><li>Sea — FCL & LCL</li><li>Rail — Cross-border</li><li>Multimodal combinations</li></ul></div>
+        <div class="sidebar-card" style="background:var(--orange);border-top-color:var(--black)"><h3 style="color:var(--black)">GET A FREIGHT QUOTE</h3><p style="color:rgba(0,0,0,0.7);margin-bottom:16px">Tell us about your shipment and we'll respond within 2 hours.</p><button class="btn" style="background:var(--black);color:var(--white);clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%)" onclick="navigate('contact')">Request Quote →</button></div>
+      </div>
+    </div>
+    <div class="other-services">
+      <div class="label">Explore More</div>
+      <h3 style="margin-bottom:32px">OTHER SERVICES</h3>
+      <div class="other-grid">
+        <div class="other-card" onclick="navigate('service-warehouse')"><div class="other-card-img"><img src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=500&auto=format&q=70" alt="Warehouse" loading="lazy"/></div><div class="other-card-body"><h3>Warehousing & Storage</h3><p>Modern facilities with advanced inventory management.</p></div></div>
+        <div class="other-card" onclick="navigate('service-supply')"><div class="other-card-img"><img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&auto=format&q=70" alt="Supply chain" loading="lazy"/></div><div class="other-card-body"><h3>Supply Chain Management</h3><p>End-to-end optimization from source to delivery.</p></div></div>
+        <div class="other-card" onclick="navigate('service-lastmile')"><div class="other-card-img"><img src="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=500&auto=format&q=70" alt="Last mile" loading="lazy"/></div><div class="other-card-body"><h3>Last Mile Delivery</h3><p>Fast final-leg delivery with full proof-of-delivery.</p></div></div>
+      </div>
+    </div>
+  </section>
+  <div class="cta-banner"><div class="cta-banner-bg"><img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=1400&auto=format&q=60" alt="" loading="lazy"/></div><div class="cta-content"><h2>SHIP WITH <span style="color:rgba(0,0,0,0.5)">CTS</span> TODAY</h2><p>Competitive rates, reliable service, global reach.</p></div><button class="btn btn-dark" onclick="navigate('contact')">Get a Quote →</button></div>
+  <footer><div class="footer-grid"><div class="footer-brand"><div class="nav-logo" style="cursor:default"><div class="logo-mark"></div><div><div class="logo-text">CTS</div><div class="logo-sub">Cargo & Transport Solutions</div></div></div><p>Your trusted logistics partner since 2003.</p></div><div class="footer-col"><h4>Services</h4><ul><li><button onclick="navigate('service-freight')">Freight Transportation</button></li><li><button onclick="navigate('service-warehouse')">Warehousing & Storage</button></li><li><button onclick="navigate('service-supply')">Supply Chain Mgmt</button></li><li><button onclick="navigate('service-lastmile')">Last Mile Delivery</button></li><li><button onclick="navigate('service-customs')">Customs & Compliance</button></li><li><button onclick="navigate('service-coldchain')">Cold Chain Logistics</button></li></ul></div><div class="footer-col"><h4>Company</h4><ul><li><button onclick="navigate('home')">Home</button></li><li><button onclick="navigate('about')">About Us</button></li><li><button onclick="navigate('contact')">Contact</button></li></ul></div><div class="footer-col"><h4>Contact</h4><ul><li><a href="#">+974 1234 5678</a></li><li><a href="#">info@cts-logistics.com</a></li></ul></div></div><div class="footer-bottom"><p>© 2025 <span>CTS Logistics</span>. All rights reserved.</p></div></footer>
+</div>
+
+<!-- ════════════════ SERVICE 2: WAREHOUSE ════════════════ -->
+<div id="page-service-warehouse" class="page">
+  <div class="service-hero">
+    <div class="service-hero-img"><img src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=1800&auto=format&q=80" alt="Warehouse interior" loading="lazy"/></div>
+    <div class="label">Service 02</div>
+    <h1>WAREHOUSING <span class="orange">& STORAGE</span></h1>
+    <p>Strategically located, technology-driven warehouses designed to optimize your inventory management and fulfillment operations.</p>
+  </div>
+  <section class="section">
+    <div class="service-body">
+      <div>
+        <div class="label">Overview</div>
+        <h3>SMART STORAGE FOR A SMARTER SUPPLY CHAIN</h3>
+        <p>CTS operates 2.5 million square feet of modern warehousing space across strategic locations in the Middle East, Europe, and Asia. Our facilities are equipped with the latest Warehouse Management Systems (WMS), automated picking technologies, and robust security infrastructure.</p>
+        <div class="service-mid-img"><img src="https://images.unsplash.com/photo-1591792111137-5b8219d5fad6?w=1000&auto=format&q=80" alt="Warehouse shelves" loading="lazy"/></div>
+        <p>From e-commerce fulfillment to bulk industrial storage, our flexible warehousing solutions scale with your business needs — whether you require dedicated, shared, or bonded warehouse facilities.</p>
+        <ul class="feature-list">
+          <li>Dedicated and shared warehousing options with flexible lease terms</li>
+          <li>Advanced WMS with real-time inventory visibility and reporting</li>
+          <li>Pick-and-pack, kitting, and value-added services</li>
+          <li>Cross-docking for fast-flow cargo with minimal handling</li>
+          <li>Bonded and free-zone warehousing for duty-deferred storage</li>
+          <li>Automated guided vehicles (AGVs) and conveyor systems</li>
+          <li>24/7 security with CCTV, access control, and fire suppression</li>
+        </ul>
+      </div>
+      <div class="svc-sidebar">
+        <div class="sidebar-img"><img src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=500&auto=format&q=75" alt="Warehouse" loading="lazy"/></div>
+        <div class="sidebar-card"><h3>FACILITY SPECS</h3><ul><li>2.5M sq ft total capacity</li><li>Rack heights up to 12m</li><li>Ambient, chilled & frozen</li><li>10+ strategic locations</li><li>ISO 9001 certified ops</li></ul></div>
+        <div class="sidebar-card"><h3>VALUE-ADD SERVICES</h3><ul><li>Pick & Pack fulfillment</li><li>Kitting & assembly</li><li>Labeling & repackaging</li><li>Returns management</li><li>Inventory reporting</li></ul></div>
+        <div class="sidebar-card" style="background:var(--orange);border-top-color:var(--black)"><h3 style="color:var(--black)">STORAGE ENQUIRY</h3><p style="color:rgba(0,0,0,0.7);margin-bottom:16px">Tell us your storage requirements for a custom quote.</p><button class="btn" style="background:var(--black);color:var(--white);clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%)" onclick="navigate('contact')">Get Quote →</button></div>
+      </div>
+    </div>
+    <div class="other-services">
+      <div class="label">Explore More</div>
+      <h3 style="margin-bottom:32px">OTHER SERVICES</h3>
+      <div class="other-grid">
+        <div class="other-card" onclick="navigate('service-freight')"><div class="other-card-img"><img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=500&auto=format&q=70" alt="Freight" loading="lazy"/></div><div class="other-card-body"><h3>Freight Transportation</h3><p>Multi-modal freight with global coverage.</p></div></div>
+        <div class="other-card" onclick="navigate('service-supply')"><div class="other-card-img"><img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&auto=format&q=70" alt="Supply chain" loading="lazy"/></div><div class="other-card-body"><h3>Supply Chain Management</h3><p>Integrated end-to-end supply chain solutions.</p></div></div>
+        <div class="other-card" onclick="navigate('service-coldchain')"><div class="other-card-img"><img src="https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=500&auto=format&q=70" alt="Cold chain" loading="lazy"/></div><div class="other-card-body"><h3>Cold Chain Logistics</h3><p>Temperature-controlled storage and transport.</p></div></div>
+      </div>
+    </div>
+  </section>
+  <div class="cta-banner"><div class="cta-banner-bg"><img src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=1400&auto=format&q=60" alt="" loading="lazy"/></div><div class="cta-content"><h2>NEED STORAGE <span style="color:rgba(0,0,0,0.5)">SOLUTIONS?</span></h2><p>Flexible warehousing tailored to your exact requirements.</p></div><button class="btn btn-dark" onclick="navigate('contact')">Enquire Now →</button></div>
+  <footer><div class="footer-grid"><div class="footer-brand"><div class="nav-logo" style="cursor:default"><div class="logo-mark"></div><div><div class="logo-text">CTS</div><div class="logo-sub">Cargo & Transport Solutions</div></div></div><p>Your trusted logistics partner since 2003.</p></div><div class="footer-col"><h4>Services</h4><ul><li><button onclick="navigate('service-freight')">Freight Transportation</button></li><li><button onclick="navigate('service-warehouse')">Warehousing & Storage</button></li><li><button onclick="navigate('service-supply')">Supply Chain Mgmt</button></li><li><button onclick="navigate('service-lastmile')">Last Mile Delivery</button></li><li><button onclick="navigate('service-customs')">Customs & Compliance</button></li><li><button onclick="navigate('service-coldchain')">Cold Chain Logistics</button></li></ul></div><div class="footer-col"><h4>Company</h4><ul><li><button onclick="navigate('home')">Home</button></li><li><button onclick="navigate('about')">About Us</button></li><li><button onclick="navigate('contact')">Contact</button></li></ul></div><div class="footer-col"><h4>Contact</h4><ul><li><a href="#">+974 1234 5678</a></li><li><a href="#">info@cts-logistics.com</a></li></ul></div></div><div class="footer-bottom"><p>© 2025 <span>CTS Logistics</span>. All rights reserved.</p></div></footer>
+</div>
+
+<!-- ════════════════ SERVICE 3: SUPPLY CHAIN ════════════════ -->
+<div id="page-service-supply" class="page">
+  <div class="service-hero">
+    <div class="service-hero-img"><img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=1800&auto=format&q=80" alt="Supply chain management team" loading="lazy"/></div>
+    <div class="label">Service 03</div>
+    <h1>SUPPLY CHAIN <span class="orange">MANAGEMENT</span></h1>
+    <p>End-to-end supply chain design, optimization, and execution — reducing costs, eliminating bottlenecks, and building resilience.</p>
+  </div>
+  <section class="section">
+    <div class="service-body">
+      <div>
+        <div class="label">Overview</div>
+        <h3>OPTIMIZE EVERY LINK IN YOUR CHAIN</h3>
+        <p>A poorly designed supply chain costs businesses millions in inefficiencies. CTS Supply Chain Management provides a holistic approach — from network design and demand forecasting to vendor management and performance analytics — to ensure your operations run at peak efficiency.</p>
+        <div class="service-mid-img"><img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1000&auto=format&q=80" alt="Supply chain operations" loading="lazy"/></div>
+        <p>Our supply chain consultants bring decades of industry experience across retail, manufacturing, FMCG, healthcare, and industrial sectors, delivering measurable results in cost reduction, lead time improvement, and service level enhancement.</p>
+        <ul class="feature-list">
+          <li>Supply chain network design and optimization consulting</li>
+          <li>Demand planning and inventory optimization models</li>
+          <li>Vendor qualification, management, and performance tracking</li>
+          <li>4PL (Fourth-Party Logistics) management services</li>
+          <li>Digital supply chain integration with ERP and TMS systems</li>
+          <li>Risk assessment, business continuity, and resilience planning</li>
+          <li>KPI dashboards with real-time performance monitoring</li>
+        </ul>
+      </div>
+      <div class="svc-sidebar">
+        <div class="sidebar-img"><img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&auto=format&q=75" alt="Team meeting" loading="lazy"/></div>
+        <div class="sidebar-card"><h3>TYPICAL OUTCOMES</h3><ul><li>Up to 30% cost reduction</li><li>25% lead time improvement</li><li>40% inventory optimization</li><li>Improved service levels</li><li>Risk mitigation frameworks</li></ul></div>
+        <div class="sidebar-card"><h3>OUR APPROACH</h3><ul><li>Assess: Audit current state</li><li>Design: Optimize the network</li><li>Implement: Deploy solutions</li><li>Monitor: Track & refine KPIs</li></ul></div>
+        <div class="sidebar-card" style="background:var(--orange);border-top-color:var(--black)"><h3 style="color:var(--black)">FREE CONSULTATION</h3><p style="color:rgba(0,0,0,0.7);margin-bottom:16px">Book a free supply chain assessment with our experts.</p><button class="btn" style="background:var(--black);color:var(--white);clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%)" onclick="navigate('contact')">Book Now →</button></div>
+      </div>
+    </div>
+    <div class="other-services">
+      <div class="label">Explore More</div>
+      <h3 style="margin-bottom:32px">OTHER SERVICES</h3>
+      <div class="other-grid">
+        <div class="other-card" onclick="navigate('service-freight')"><div class="other-card-img"><img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=500&auto=format&q=70" alt="Freight" loading="lazy"/></div><div class="other-card-body"><h3>Freight Transportation</h3><p>Integrated freight solutions for your supply chain.</p></div></div>
+        <div class="other-card" onclick="navigate('service-warehouse')"><div class="other-card-img"><img src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=500&auto=format&q=70" alt="Warehouse" loading="lazy"/></div><div class="other-card-body"><h3>Warehousing & Storage</h3><p>Strategic storage to complement your supply chain.</p></div></div>
+        <div class="other-card" onclick="navigate('service-customs')"><div class="other-card-img"><img src="https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=500&auto=format&q=70" alt="Customs" loading="lazy"/></div><div class="other-card-body"><h3>Customs & Compliance</h3><p>Smooth cross-border movement for global chains.</p></div></div>
+      </div>
+    </div>
+  </section>
+  <div class="cta-banner"><div class="cta-banner-bg"><img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=1400&auto=format&q=60" alt="" loading="lazy"/></div><div class="cta-content"><h2>TRANSFORM YOUR <span style="color:rgba(0,0,0,0.5)">SUPPLY CHAIN</span></h2><p>Speak to our experts for a free assessment today.</p></div><button class="btn btn-dark" onclick="navigate('contact')">Book Assessment →</button></div>
+  <footer><div class="footer-grid"><div class="footer-brand"><div class="nav-logo" style="cursor:default"><div class="logo-mark"></div><div><div class="logo-text">CTS</div><div class="logo-sub">Cargo & Transport Solutions</div></div></div><p>Your trusted logistics partner since 2003.</p></div><div class="footer-col"><h4>Services</h4><ul><li><button onclick="navigate('service-freight')">Freight Transportation</button></li><li><button onclick="navigate('service-warehouse')">Warehousing & Storage</button></li><li><button onclick="navigate('service-supply')">Supply Chain Mgmt</button></li><li><button onclick="navigate('service-lastmile')">Last Mile Delivery</button></li><li><button onclick="navigate('service-customs')">Customs & Compliance</button></li><li><button onclick="navigate('service-coldchain')">Cold Chain Logistics</button></li></ul></div><div class="footer-col"><h4>Company</h4><ul><li><button onclick="navigate('home')">Home</button></li><li><button onclick="navigate('about')">About Us</button></li><li><button onclick="navigate('contact')">Contact</button></li></ul></div><div class="footer-col"><h4>Contact</h4><ul><li><a href="#">+974 1234 5678</a></li><li><a href="#">info@cts-logistics.com</a></li></ul></div></div><div class="footer-bottom"><p>© 2025 <span>CTS Logistics</span>. All rights reserved.</p></div></footer>
+</div>
+
+<!-- ════════════════ SERVICE 4: LAST MILE ════════════════ -->
+<div id="page-service-lastmile" class="page">
+  <div class="service-hero">
+    <div class="service-hero-img"><img src="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=1800&auto=format&q=80" alt="Last mile delivery" loading="lazy"/></div>
+    <div class="label">Service 04</div>
+    <h1>LAST MILE <span class="orange">DELIVERY</span></h1>
+    <p>Fast, reliable, and customer-centric final-leg delivery built for the modern expectations of B2C and B2B recipients alike.</p>
+  </div>
+  <section class="section">
+    <div class="service-body">
+      <div>
+        <div class="label">Overview</div>
+        <h3>THE LAST MILE MATTERS MOST</h3>
+        <p>The last mile is where customer experience is made or broken. CTS Last Mile Delivery combines an extensive urban delivery network with smart routing algorithms and flexible delivery options to ensure every package reaches its destination reliably and on schedule.</p>
+        <div class="service-mid-img"><img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=1000&auto=format&q=80" alt="Delivery vehicles" loading="lazy"/></div>
+        <p>Our last mile platform supports same-day, next-day, and scheduled delivery windows, with real-time tracking notifications sent directly to your customers.</p>
+        <ul class="feature-list">
+          <li>Same-day and next-day urban delivery options</li>
+          <li>Scheduled time-slot delivery for customer convenience</li>
+          <li>Real-time GPS tracking link shareable with end customers</li>
+          <li>Electronic proof-of-delivery (ePOD) with photo and signature</li>
+          <li>Failed delivery management and re-attempt workflows</li>
+          <li>Parcel locker and collection point network integration</li>
+          <li>B2B bulk delivery and site-specific delivery protocols</li>
+        </ul>
+      </div>
+      <div class="svc-sidebar">
+        <div class="sidebar-img"><img src="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=500&auto=format&q=75" alt="Package delivery" loading="lazy"/></div>
+        <div class="sidebar-card"><h3>DELIVERY SPEEDS</h3><ul><li>Same-day (select cities)</li><li>Next-day nationwide</li><li>2-day economy</li><li>Scheduled time slots</li><li>Weekend delivery</li></ul></div>
+        <div class="sidebar-card"><h3>PLATFORM FEATURES</h3><ul><li>API integration with your OMS</li><li>Branded tracking pages</li><li>SMS & email notifications</li><li>Delivery analytics dashboard</li><li>Returns portal integration</li></ul></div>
+        <div class="sidebar-card" style="background:var(--orange);border-top-color:var(--black)"><h3 style="color:var(--black)">START DELIVERING</h3><p style="color:rgba(0,0,0,0.7);margin-bottom:16px">Integrate CTS last mile into your operations today.</p><button class="btn" style="background:var(--black);color:var(--white);clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%)" onclick="navigate('contact')">Get Started →</button></div>
+      </div>
+    </div>
+    <div class="other-services">
+      <div class="label">Explore More</div>
+      <h3 style="margin-bottom:32px">OTHER SERVICES</h3>
+      <div class="other-grid">
+        <div class="other-card" onclick="navigate('service-freight')"><div class="other-card-img"><img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=500&auto=format&q=70" alt="Freight" loading="lazy"/></div><div class="other-card-body"><h3>Freight Transportation</h3><p>Connect last mile with long-haul freight.</p></div></div>
+        <div class="other-card" onclick="navigate('service-warehouse')"><div class="other-card-img"><img src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=500&auto=format&q=70" alt="Warehouse" loading="lazy"/></div><div class="other-card-body"><h3>Warehousing & Storage</h3><p>Fulfillment centers powering your last mile.</p></div></div>
+        <div class="other-card" onclick="navigate('service-supply')"><div class="other-card-img"><img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&auto=format&q=70" alt="Supply chain" loading="lazy"/></div><div class="other-card-body"><h3>Supply Chain Management</h3><p>Integrate last mile into your full supply chain.</p></div></div>
+      </div>
+    </div>
+  </section>
+  <div class="cta-banner"><div class="cta-banner-bg"><img src="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=1400&auto=format&q=60" alt="" loading="lazy"/></div><div class="cta-content"><h2>DELIGHT YOUR <span style="color:rgba(0,0,0,0.5)">CUSTOMERS</span></h2><p>Reliable last mile delivery your customers will remember.</p></div><button class="btn btn-dark" onclick="navigate('contact')">Get Started →</button></div>
+  <footer><div class="footer-grid"><div class="footer-brand"><div class="nav-logo" style="cursor:default"><div class="logo-mark"></div><div><div class="logo-text">CTS</div><div class="logo-sub">Cargo & Transport Solutions</div></div></div><p>Your trusted logistics partner since 2003.</p></div><div class="footer-col"><h4>Services</h4><ul><li><button onclick="navigate('service-freight')">Freight Transportation</button></li><li><button onclick="navigate('service-warehouse')">Warehousing & Storage</button></li><li><button onclick="navigate('service-supply')">Supply Chain Mgmt</button></li><li><button onclick="navigate('service-lastmile')">Last Mile Delivery</button></li><li><button onclick="navigate('service-customs')">Customs & Compliance</button></li><li><button onclick="navigate('service-coldchain')">Cold Chain Logistics</button></li></ul></div><div class="footer-col"><h4>Company</h4><ul><li><button onclick="navigate('home')">Home</button></li><li><button onclick="navigate('about')">About Us</button></li><li><button onclick="navigate('contact')">Contact</button></li></ul></div><div class="footer-col"><h4>Contact</h4><ul><li><a href="#">+974 1234 5678</a></li><li><a href="#">info@cts-logistics.com</a></li></ul></div></div><div class="footer-bottom"><p>© 2025 <span>CTS Logistics</span>. All rights reserved.</p></div></footer>
+</div>
+
+<!-- ════════════════ SERVICE 5: CUSTOMS ════════════════ -->
+<div id="page-service-customs" class="page">
+  <div class="service-hero">
+    <div class="service-hero-img"><img src="https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=1800&auto=format&q=80" alt="Customs and port clearance" loading="lazy"/></div>
+    <div class="label">Service 05</div>
+    <h1>CUSTOMS & <span class="orange">COMPLIANCE</span></h1>
+    <p>Expert customs brokerage and trade compliance services that eliminate delays, reduce duty costs, and keep your cargo moving smoothly.</p>
+  </div>
+  <section class="section">
+    <div class="service-body">
+      <div>
+        <div class="label">Overview</div>
+        <h3>NAVIGATE GLOBAL TRADE WITH CONFIDENCE</h3>
+        <p>International trade compliance is complex, ever-changing, and carries significant financial and legal implications. CTS Customs & Compliance offers a full suite of customs brokerage and trade advisory services to ensure your shipments clear borders efficiently and in full regulatory compliance.</p>
+        <div class="service-mid-img"><img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1000&auto=format&q=80" alt="Port cargo inspection" loading="lazy"/></div>
+        <p>Our licensed customs brokers have deep expertise in GCC, EU, US, and Asian customs regimes. We stay ahead of regulatory changes so you don't have to.</p>
+        <ul class="feature-list">
+          <li>Licensed customs brokerage in 40+ countries</li>
+          <li>Import and export documentation preparation and filing</li>
+          <li>HS tariff classification and duty optimization advisory</li>
+          <li>Free Trade Agreement (FTA) utilization and certificate of origin</li>
+          <li>AEO (Authorized Economic Operator) program management</li>
+          <li>Trade sanctions and restricted party screening</li>
+          <li>Customs audit support and duty drawback recovery</li>
+        </ul>
+      </div>
+      <div class="svc-sidebar">
+        <div class="sidebar-img"><img src="https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=500&auto=format&q=75" alt="Customs" loading="lazy"/></div>
+        <div class="sidebar-card"><h3>REGIONS COVERED</h3><ul><li>GCC & MENA region</li><li>European Union</li><li>United States & Canada</li><li>South & Southeast Asia</li><li>East Africa</li></ul></div>
+        <div class="sidebar-card"><h3>COMPLIANCE SERVICES</h3><ul><li>Import/export licensing</li><li>Duty drawback programs</li><li>Customs bond management</li><li>Denied party screening</li><li>Trade compliance training</li></ul></div>
+        <div class="sidebar-card" style="background:var(--orange);border-top-color:var(--black)"><h3 style="color:var(--black)">COMPLIANCE REVIEW</h3><p style="color:rgba(0,0,0,0.7);margin-bottom:16px">Get a free trade compliance health check from our team.</p><button class="btn" style="background:var(--black);color:var(--white);clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%)" onclick="navigate('contact')">Book Review →</button></div>
+      </div>
+    </div>
+    <div class="other-services">
+      <div class="label">Explore More</div>
+      <h3 style="margin-bottom:32px">OTHER SERVICES</h3>
+      <div class="other-grid">
+        <div class="other-card" onclick="navigate('service-freight')"><div class="other-card-img"><img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=500&auto=format&q=70" alt="Freight" loading="lazy"/></div><div class="other-card-body"><h3>Freight Transportation</h3><p>Pair customs clearance with seamless freight.</p></div></div>
+        <div class="other-card" onclick="navigate('service-supply')"><div class="other-card-img"><img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&auto=format&q=70" alt="Supply chain" loading="lazy"/></div><div class="other-card-body"><h3>Supply Chain Management</h3><p>Compliance embedded into your supply chain design.</p></div></div>
+        <div class="other-card" onclick="navigate('service-coldchain')"><div class="other-card-img"><img src="https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=500&auto=format&q=70" alt="Cold chain" loading="lazy"/></div><div class="other-card-body"><h3>Cold Chain Logistics</h3><p>Regulatory clearance for temperature-sensitive goods.</p></div></div>
+      </div>
+    </div>
+  </section>
+  <div class="cta-banner"><div class="cta-banner-bg"><img src="https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=1400&auto=format&q=60" alt="" loading="lazy"/></div><div class="cta-content"><h2>CLEAR BORDERS <span style="color:rgba(0,0,0,0.5)">FASTER</span></h2><p>Let our experts handle your customs clearance seamlessly.</p></div><button class="btn btn-dark" onclick="navigate('contact')">Speak to an Expert →</button></div>
+  <footer><div class="footer-grid"><div class="footer-brand"><div class="nav-logo" style="cursor:default"><div class="logo-mark"></div><div><div class="logo-text">CTS</div><div class="logo-sub">Cargo & Transport Solutions</div></div></div><p>Your trusted logistics partner since 2003.</p></div><div class="footer-col"><h4>Services</h4><ul><li><button onclick="navigate('service-freight')">Freight Transportation</button></li><li><button onclick="navigate('service-warehouse')">Warehousing & Storage</button></li><li><button onclick="navigate('service-supply')">Supply Chain Mgmt</button></li><li><button onclick="navigate('service-lastmile')">Last Mile Delivery</button></li><li><button onclick="navigate('service-customs')">Customs & Compliance</button></li><li><button onclick="navigate('service-coldchain')">Cold Chain Logistics</button></li></ul></div><div class="footer-col"><h4>Company</h4><ul><li><button onclick="navigate('home')">Home</button></li><li><button onclick="navigate('about')">About Us</button></li><li><button onclick="navigate('contact')">Contact</button></li></ul></div><div class="footer-col"><h4>Contact</h4><ul><li><a href="#">+974 1234 5678</a></li><li><a href="#">info@cts-logistics.com</a></li></ul></div></div><div class="footer-bottom"><p>© 2025 <span>CTS Logistics</span>. All rights reserved.</p></div></footer>
+</div>
+
+<!-- ════════════════ SERVICE 6: COLD CHAIN ════════════════ -->
+<div id="page-service-coldchain" class="page">
+  <div class="service-hero">
+    <div class="service-hero-img"><img src="https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=1800&auto=format&q=80" alt="Cold chain refrigerated storage" loading="lazy"/></div>
+    <div class="label">Service 06</div>
+    <h1>COLD CHAIN <span class="orange">LOGISTICS</span></h1>
+    <p>Unbroken temperature-controlled logistics for pharmaceutical, food, and sensitive cargo — maintaining product integrity from origin to destination.</p>
+  </div>
+  <section class="section">
+    <div class="service-body">
+      <div>
+        <div class="label">Overview</div>
+        <h3>INTEGRITY MAINTAINED AT EVERY TEMPERATURE</h3>
+        <p>Temperature-sensitive products demand a logistics partner with specialized expertise, certified infrastructure, and zero tolerance for temperature excursions. CTS Cold Chain Logistics maintains the full cold chain from pick-up to delivery with continuous monitoring and full traceability documentation.</p>
+        <div class="service-mid-img"><img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=1000&auto=format&q=80" alt="Cold storage pharmaceutical" loading="lazy"/></div>
+        <p>Our GDP-compliant cold chain network serves pharmaceutical companies, food manufacturers, grocery retailers, and biotech firms — handling products ranging from fresh produce to deep-frozen biologics.</p>
+        <ul class="feature-list">
+          <li>Ambient, chilled (+2°C to +8°C), and frozen (-18°C to -25°C) capabilities</li>
+          <li>Ultra-low temperature (-60°C to -80°C) for cryogenic and biotech cargo</li>
+          <li>GDP-certified warehousing and transport for pharmaceutical products</li>
+          <li>IoT temperature monitoring with real-time alerts and data logging</li>
+          <li>Refrigerated vehicles with dual-temperature compartments</li>
+          <li>Passive packaging solutions (dry ice, gel packs, PCM) for air freight</li>
+          <li>Full traceability and batch documentation for regulatory compliance</li>
+        </ul>
+      </div>
+      <div class="svc-sidebar">
+        <div class="sidebar-img"><img src="https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=500&auto=format&q=75" alt="Cold storage" loading="lazy"/></div>
+        <div class="sidebar-card"><h3>TEMPERATURE RANGES</h3><ul><li>Ambient: +15°C to +25°C</li><li>Chilled: +2°C to +8°C</li><li>Frozen: -18°C to -25°C</li><li>Deep Frozen: -40°C</li><li>Cryogenic: -80°C</li></ul></div>
+        <div class="sidebar-card"><h3>CERTIFICATIONS</h3><ul><li>GDP (Good Distribution Practice)</li><li>ISO 9001:2015</li><li>HACCP Certified</li><li>IATA CEIV Pharma</li><li>Halal Certified Storage</li></ul></div>
+        <div class="sidebar-card" style="background:var(--orange);border-top-color:var(--black)"><h3 style="color:var(--black)">COLD CHAIN QUOTE</h3><p style="color:rgba(0,0,0,0.7);margin-bottom:16px">Describe your temperature-sensitive shipment for a quote.</p><button class="btn" style="background:var(--black);color:var(--white);clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%)" onclick="navigate('contact')">Get Quote →</button></div>
+      </div>
+    </div>
+    <div class="other-services">
+      <div class="label">Explore More</div>
+      <h3 style="margin-bottom:32px">OTHER SERVICES</h3>
+      <div class="other-grid">
+        <div class="other-card" onclick="navigate('service-freight')"><div class="other-card-img"><img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=500&auto=format&q=70" alt="Freight" loading="lazy"/></div><div class="other-card-body"><h3>Freight Transportation</h3><p>Multi-modal freight for all cargo types.</p></div></div>
+        <div class="other-card" onclick="navigate('service-warehouse')"><div class="other-card-img"><img src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=500&auto=format&q=70" alt="Warehouse" loading="lazy"/></div><div class="other-card-body"><h3>Warehousing & Storage</h3><p>Ambient to frozen storage capabilities.</p></div></div>
+        <div class="other-card" onclick="navigate('service-customs')"><div class="other-card-img"><img src="https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=500&auto=format&q=70" alt="Customs" loading="lazy"/></div><div class="other-card-body"><h3>Customs & Compliance</h3><p>Regulatory clearance for sensitive products.</p></div></div>
+      </div>
+    </div>
+  </section>
+  <div class="cta-banner"><div class="cta-banner-bg"><img src="https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=1400&auto=format&q=60" alt="" loading="lazy"/></div><div class="cta-content"><h2>PROTECT YOUR <span style="color:rgba(0,0,0,0.5)">PRODUCT</span></h2><p>Certified cold chain solutions with zero excursions.</p></div><button class="btn btn-dark" onclick="navigate('contact')">Request Quote →</button></div>
+  <footer><div class="footer-grid"><div class="footer-brand"><div class="nav-logo" style="cursor:default"><div class="logo-mark"></div><div><div class="logo-text">CTS</div><div class="logo-sub">Cargo & Transport Solutions</div></div></div><p>Your trusted logistics partner since 2003.</p></div><div class="footer-col"><h4>Services</h4><ul><li><button onclick="navigate('service-freight')">Freight Transportation</button></li><li><button onclick="navigate('service-warehouse')">Warehousing & Storage</button></li><li><button onclick="navigate('service-supply')">Supply Chain Mgmt</button></li><li><button onclick="navigate('service-lastmile')">Last Mile Delivery</button></li><li><button onclick="navigate('service-customs')">Customs & Compliance</button></li><li><button onclick="navigate('service-coldchain')">Cold Chain Logistics</button></li></ul></div><div class="footer-col"><h4>Company</h4><ul><li><button onclick="navigate('home')">Home</button></li><li><button onclick="navigate('about')">About Us</button></li><li><button onclick="navigate('contact')">Contact</button></li></ul></div><div class="footer-col"><h4>Contact</h4><ul><li><a href="#">+974 1234 5678</a></li><li><a href="#">info@cts-logistics.com</a></li></ul></div></div><div class="footer-bottom"><p>© 2025 <span>CTS Logistics</span>. All rights reserved.</p></div></footer>
+</div>
+
+<!-- ════════════════ CONTACT ════════════════ -->
+<div id="page-contact" class="page">
+  <div class="page-hero">
+    <div class="page-hero-img">
+      <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1600&auto=format&q=80" alt="Business district buildings" loading="lazy"/>
+    </div>
+    <div class="label">Get In Touch</div>
+    <h1>CONTACT <span class="orange">US</span></h1>
+    <p style="max-width:500px;margin-top:16px;font-size:1rem;color:rgba(245,245,240,0.65)">Ready to optimize your logistics? Our team is available 24/7 to discuss your needs and provide tailored solutions.</p>
+    <div class="page-hero-num">24/7</div>
+  </div>
+
+  <section class="section">
+    <div class="contact-grid">
+      <div>
+        <div class="label">Our Offices</div>
+        <h3 style="margin-bottom:32px">REACH US ANYWHERE</h3>
+        <div class="contact-info-card">
+          <div class="contact-item"><span class="contact-label">Headquarters</span><span class="contact-value">CTS <br>Kochi, Kerala</span></div>
+          <div class="contact-item"><span class="contact-label">Regional Office</span><span class="contact-value">CTS<br>Thrissur, Kerala</span></div>
+          <div class="contact-item"><span class="contact-label">Phone</span><span class="contact-value">+974 1234 5678 <br>+91 1234567890</span></div>
+          <div class="contact-item"><span class="contact-label">Email</span><span class="contact-value">info@cts-logistics.com<br>sales@cts-logistics.com</span></div>
+          <div class="contact-item"><span class="contact-label">Operations Center</span><span class="contact-value">Available 24 hours, 7 days<br>ops@cts-logistics.com</span></div>
+          <div><span class="contact-label">Follow Us</span><div class="socials"><a class="social-btn" href="#">in</a><a class="social-btn" href="#">𝕏</a><a class="social-btn" href="#">f</a><a class="social-btn" href="#">▶</a></div></div>
+        </div>
+        <!-- Office image -->
+        <div style="height:220px;overflow:hidden;margin-top:24px;position:relative;">
+          <img style="width:100%;height:100%;object-fit:cover;" src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&auto=format&q=80" alt="CTS office" loading="lazy"/>
+          <div style="position:absolute;inset:0;background:rgba(10,10,10,.4);"></div>
+          <div style="position:absolute;bottom:20px;left:20px;"><div style="font-family:var(--font-cond);font-size:.7rem;letter-spacing:3px;text-transform:uppercase;color:var(--orange);">Doha Headquarters</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="label">Send a Message</div>
+        <h3 style="margin-bottom:32px">REQUEST A QUOTE OR ENQUIRY</h3>
+        <div id="contact-form" class="contact-form">
+          <div class="form-row">
+            <div class="field"><label>First Name *</label><input type="text" placeholder="Your first name" id="fname"/></div>
+            <div class="field"><label>Last Name *</label><input type="text" placeholder="Your last name" id="lname"/></div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label>Email Address *</label><input type="email" placeholder="your@email.com" id="femail"/></div>
+            <div class="field"><label>Phone Number</label><input type="tel" placeholder="+974 XXXX XXXX" id="fphone"/></div>
+          </div>
+          <div class="field"><label>Company Name</label><input type="text" placeholder="Your company" id="fcompany"/></div>
+          <div class="field"><label>Service of Interest</label>
+            <select id="fservice">
+              <option value="">— Select a Service —</option>
+              <option>Freight Transportation</option>
+              <option>Warehousing & Storage</option>
+              <option>Supply Chain Management</option>
+              <option>Last Mile Delivery</option>
+              <option>Customs & Compliance</option>
+              <option>Cold Chain Logistics</option>
+              <option>General Enquiry</option>
+            </select>
+          </div>
+          <div class="field"><label>Message *</label><textarea rows="5" placeholder="Tell us about your logistics needs, shipment details, or any questions..." id="fmessage"></textarea></div>
+          <div class="submit-row"><span class="form-note">We respond within 24 business hours.</span><button class="btn btn-primary" onclick="submitForm()">Send Message →</button></div>
+          <div class="form-success" id="form-success">✓ &nbsp; Thank you! Your message has been received. We'll be in touch shortly.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Map image -->
+    <div class="map-img">
+      <img src="" alt="" loading="lazy"/>
+      <div class="map-pin-label">
+        <div class="pin">📍</div>
+        <p>CTS LOGISTICS — Kochi, Kerala</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand"><div class="nav-logo" style="cursor:default"><div class="logo-mark"></div><div><div class="logo-text">CTS</div><div class="logo-sub">Cargo & Transport Solutions</div></div></div><p>Your trusted logistics partner for global freight, warehousing, and supply chain solutions since 2003.</p></div>
+      <div class="footer-col"><h4>Services</h4><ul><li><button onclick="navigate('service-freight')">Freight Transportation</button></li><li><button onclick="navigate('service-warehouse')">Warehousing & Storage</button></li><li><button onclick="navigate('service-supply')">Supply Chain Mgmt</button></li><li><button onclick="navigate('service-lastmile')">Last Mile Delivery</button></li><li><button onclick="navigate('service-customs')">Customs & Compliance</button></li><li><button onclick="navigate('service-coldchain')">Cold Chain Logistics</button></li></ul></div>
+      <div class="footer-col"><h4>Company</h4><ul><li><button onclick="navigate('home')">Home</button></li><li><button onclick="navigate('about')">About Us</button></li><li><button onclick="navigate('contact')">Contact</button></li></ul></div>
+      <div class="footer-col"><h4>Contact</h4><ul><li><a href="#">+974 1234 5678</a></li><li><a href="#">info@cts-logistics.com</a></li><li><a href="#">Doha, Qatar</a></li><li><a href="#">Dubai, UAE</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><p>© 2025 <span>CTS Logistics</span>. All rights reserved.</p><p>Designed with precision for <span>global reach</span>.</p></div>
+  </footer>
+</div>
+
+<script>
+  const PAGES = ['home','about','services','service-freight','service-warehouse','service-supply','service-lastmile','service-customs','service-coldchain','contact'];
+  function navigate(page) {
+    PAGES.forEach(p => { const el = document.getElementById('page-'+p); if(el) el.classList.remove('active'); });
+    const target = document.getElementById('page-'+page);
+    if(target){ target.classList.add('active'); window.scrollTo({top:0,behavior:'instant'}); }
+    document.querySelectorAll('[data-page]').forEach(el => {
+      el.classList.remove('active');
+      if(el.dataset.page===page||(page.startsWith('service')&&el.dataset.page==='services')) el.classList.add('active');
+    });
+  }
+  function toggleMobile(){ document.getElementById('mobile-menu').classList.toggle('open'); }
+  function submitForm(){
+    const fname=document.getElementById('fname').value.trim();
+    const femail=document.getElementById('femail').value.trim();
+    const fmsg=document.getElementById('fmessage').value.trim();
+    if(!fname||!femail||!fmsg){ alert('Please fill in all required fields (Name, Email, Message).'); return; }
+    document.getElementById('form-success').classList.add('show');
+    ['fname','lname','femail','fphone','fcompany','fmessage'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('fservice').value='';
+    setTimeout(()=>document.getElementById('form-success').classList.remove('show'),5000);
+  }
+  navigate('home');
+</script>
+</body>
+</html>
